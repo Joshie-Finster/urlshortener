@@ -4,11 +4,17 @@ const cors = require('cors');
 const { mongo } = require('mongoose');
 const app = express();
 const mongoose = require('mongoose');
+var bodyParser = require('body-parser');
 
+
+var original_url ='';
+var short_url = '';
 mongoose.connect(process.env.DB_URI,{useNewUrlParser: true, useUnifiedTopology: true});
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(cors());
 
@@ -19,8 +25,8 @@ app.get('/', function(req, res) {
 });
 
 let urlSchema = new mongoose.Schema({
-  url: String,
-  shortenedUrl: String
+  original_url: String,
+  short_url: String
 });
 
 let ShortUrl = mongoose.model('ShortUrl', urlSchema);
@@ -33,7 +39,7 @@ var createRandomUrl = () => {
 console.log(createRandomUrl());
 
 const createAndSaveUrl = (done) =>{
-  let input = new ShortUrl({url: document.getElementById('url_input'), shortenedUrl: createRandomUrl()});
+  let input = new ShortUrl({original_url: index.html['url_input'], short_url: createRandomUrl()});
   input.save((err,data)=>{
     if(err) return console.error(err);
     done(null,data);
@@ -46,10 +52,21 @@ app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-app.post('/api/shorturl/new',(req,res)=>{
-  let info = createAndSaveUrl();
-  res.json({info})
+
+app.get('/api/shorturl/new',(req,res)=>{
+  original_url = req.body.url;
+  res.json({url: url})
+  console.log('get ' + original_url)
 })
+app.post('/api/shorturl/new',(req,res)=>{
+  original_url = req.body;
+  res.json({url: url})
+  console.log('post '+original_url)
+})
+
+
+
+
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
