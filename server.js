@@ -1,10 +1,12 @@
-require('dotenv').config();
+require('dotenv').config({path: 'sample.env'});
 const express = require('express');
 const cors = require('cors');
 const { mongo } = require('mongoose');
 const app = express();
-const mongoose = require('mongoose')
-//mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true})
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.DB_URI,{useNewUrlParser: true, useUnifiedTopology: true});
+
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
@@ -16,11 +18,40 @@ app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
+let urlSchema = new mongoose.Schema({
+  url: String,
+  shortenedUrl: String
+});
+
+let ShortUrl = mongoose.model('ShortUrl', urlSchema);
+
+var createRandomUrl = () => {
+  var random_string = Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
+  return random_string;
+  
+};
+console.log(createRandomUrl());
+
+const createAndSaveUrl = (done) =>{
+  let input = new ShortUrl({url: document.getElementById('url_input'), shortenedUrl: createRandomUrl()});
+  input.save((err,data)=>{
+    if(err) return console.error(err);
+    done(null,data);
+  })
+}
+
+
 // Your first API endpoint
 app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+app.post('/api/shorturl/new',(req,res)=>{
+  let info = createAndSaveUrl();
+  res.json({info})
+})
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
+
+
