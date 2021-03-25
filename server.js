@@ -13,8 +13,11 @@ mongoose.connect(process.env.DB_URI,{useNewUrlParser: true, useUnifiedTopology: 
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
 
 app.use(cors());
 
@@ -53,15 +56,11 @@ app.get('/api/hello', function(req, res) {
 });
 
 
-app.get('/api/shorturl/new',(req,res)=>{
-  original_url = req.body.url;
-  res.json({url: url})
-  console.log('get ' + original_url)
-})
+
 app.post('/api/shorturl/new',(req,res)=>{
-  original_url = req.body;
-  res.json({url: url})
-  console.log('post '+original_url)
+  let string = req.body.url;
+  res.json({url: string})
+  console.log('post ' + string)
 })
 
 
