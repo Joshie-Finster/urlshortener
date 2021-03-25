@@ -28,8 +28,14 @@ app.get('/', function(req, res) {
 });
 
 let urlSchema = new mongoose.Schema({
-  original_url: String,
-  short_url: String
+  original_url: {
+    type: String,
+    required: true
+  },
+  short_url: {
+    type: String,
+    required: true
+  }
 });
 
 let ShortUrl = mongoose.model('ShortUrl', urlSchema);
@@ -39,16 +45,15 @@ var createRandomUrl = () => {
   return random_string;
   
 };
-console.log(createRandomUrl());
 
-const createAndSaveUrl = (done) =>{
-  let input = new ShortUrl({original_url: index.html['url_input'], short_url: createRandomUrl()});
-  input.save((err,data)=>{
-    if(err) return console.error(err);
-    done(null,data);
-  })
-}
 
+
+const findShortUrl = (shortUrl, done) =>{
+  ShortUrl.findOne({short_url: shortUrl}, (err,foundUrl)=>{
+    if (err) return console.log(err);
+    done(null, foundUrl)
+  });
+};
 
 // Your first API endpoint
 app.get('/api/hello', function(req, res) {
@@ -59,8 +64,11 @@ app.get('/api/hello', function(req, res) {
 
 app.post('/api/shorturl/new',(req,res)=>{
   let string = req.body.url;
-  res.json({url: string})
-  console.log('post ' + string)
+  let randomNum = createRandomUrl();
+  const record = new ShortUrl({original_url: string, short_url: randomNum });
+  record.save()
+  res.json({record})
+  
 })
 
 
