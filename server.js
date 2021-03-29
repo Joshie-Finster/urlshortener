@@ -65,7 +65,7 @@ app.post("/api/shorturl/new", async function (req, res) {
 
   if (!string.match(urlRegex)) {
     console.log("invalid URL");
-    res.json({ error: "Invalid URL" });
+    res.json({ error: "invalid url" });
   } else {
     try {
       let search = await ShortUrl.findOne({ original_url: string });
