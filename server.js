@@ -49,12 +49,6 @@ var createRandomUrl = () => {
   return random_string;
 };
 
-const findShortUrl = (shortUrl, done) => {
-  ShortUrl.findOne({ short_url: shortUrl }, (err, foundUrl) => {
-    if (err) return console.log(err);
-    done(null, foundUrl);
-  });
-};
 
 // Your first API endpoint
 app.get("/api/hello", function (req, res) {
@@ -83,8 +77,15 @@ app.post("/api/shorturl/new", async function (req, res) {
           short_url: search.short_url,
         });
       } else {
-        console.log("not in database");
-        res.json({ url: "not in database" });
+        let newUrl = new ShortUrl({
+          original_url:string,
+          short_url: randomNum,
+        })
+        await newUrl.save()
+        res.json({
+          original_url:newUrl.original_url,
+          short_url:newUrl.short_url
+        })
       }
     } catch (err) {
       console.error(err);
@@ -92,6 +93,20 @@ app.post("/api/shorturl/new", async function (req, res) {
     }
   }
 });
+
+app.get('/api/shorturl/:short_url?', async (req,res)=>{
+  let short_url = req.params.short_url;
+  let search = await ShortUrl.findOne({ short_url: short_url });
+  try{if(search){
+    return res.redirect(search.original_url)
+  }else{
+    return res.status(404).json('no Url found')
+  }
+}catch(err){
+  console.log(err)
+  res.status(500).json('server error')
+}
+})
 
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
