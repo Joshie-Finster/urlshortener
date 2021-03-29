@@ -4,6 +4,7 @@ const cors = require("cors");
 const { mongo } = require("mongoose");
 const app = express();
 const mongoose = require("mongoose");
+const validUrl = require('valid-url');
 var bodyParser = require("body-parser");
 
 var original_url = "";
@@ -63,7 +64,7 @@ app.post("/api/shorturl/new", async function (req, res) {
     /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi
   );
 
-  if (!string.match(urlRegex)) {
+  if (!validUrl.isWebUri(string)) {
     console.log("invalid URL");
     res.json({ error: "invalid url" });
   } else {
